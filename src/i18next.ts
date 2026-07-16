@@ -5,7 +5,7 @@ import Khmer from "./locale/kh/translation.json";
 import zhCNTranslation from './locale/zh-CN/translation.json';
 import zhTWTranslation from './locale/zh-TW/translation.json';
 
-const defaultLanguage = 'en';
+const defaultLanguage = 'zh-CN';
 
 i18next
     .use(initReactI18next)

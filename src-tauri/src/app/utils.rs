@@ -32,7 +32,7 @@ pub async fn reopen_main_window(app: tauri::AppHandle) -> Result<(), String> {
 
 pub fn open_setting_window(app: tauri::AppHandle) {
     let settings = AppConfig::new();
-    let _window = tauri::WindowBuilder::new(&app, "setting", WindowUrl::App("/setting".into()))
+    let window = tauri::WindowBuilder::new(&app, "setting", WindowUrl::App("/setting".into()))
         .title("WindowPet Setting")
         .inner_size(1000.0, 650.0)
         .theme(if settings.get_theme() == "dark" {
@@ -45,5 +45,6 @@ pub fn open_setting_window(app: tauri::AppHandle) {
             log::error!("Failed to create setting window: {}", e);
             panic!("Window creation failed: {}", e);
         });
+    window.open_devtools();
     info!("open setting window");
 }

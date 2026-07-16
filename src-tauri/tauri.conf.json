@@ -72,14 +72,17 @@
     },
     "windows": [
       {
-        "fullscreen": true,
+        "fullscreen": false,
+        "decorations": false,
         "resizable": false,
         "title": "WindowPet",
-        "width": 64,
-        "height": 64,
+        "width": 1920,
+        "height": 1080,
         "transparent": true,
         "alwaysOnTop": true,
-        "skipTaskbar": true
+        "skipTaskbar": true,
+        "x": 0,
+        "y": 0
       }
     ],
     "systemTray": {

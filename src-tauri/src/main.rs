@@ -40,6 +40,12 @@ fn build_app() {
         }))
         .setup(move |app| {
             let window = app.get_window("main").unwrap();
+            
+            let monitor = window.current_monitor().unwrap().unwrap();
+            let size = monitor.size();
+            window.set_size(tauri::Size::Physical(*size)).unwrap();
+            window.set_position(tauri::Position::Physical(tauri::PhysicalPosition { x: 0, y: 0 })).unwrap();
+            
             window
                 .set_ignore_cursor_events(true)
                 .unwrap_or_else(|err| println!("{:?}", err));
