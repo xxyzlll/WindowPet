@@ -7,7 +7,7 @@ import defaultSettings from "../../src-tauri/src/app/default/settings.json";
 import { error } from "tauri-plugin-log-api";
 import { ISettingStoreVariables } from "../types/hooks/type";
 
-const { setLanguage, setTheme, setAllowAutoStartUp, setAllowPetAboveTaskbar, setAllowPetInteraction, setAllowOverridePetScale, setPetScale, setAllowPetClimbing } = useSettingStore.getState();
+const { setLanguage, setTheme, setAllowAutoStartUp, setAllowPetAboveTaskbar, setAllowPetInteraction, setAllowOverridePetScale, setPetScale, setAllowPetClimbing, setAiProvider, setDeepseekApiKey, setDeepseekBaseUrl, setDeepseekModel } = useSettingStore.getState();
 
 const getSettings = async () => {
     let setting: ISettingStoreVariables = await getAppSettings({ configName: "settings.json" });
@@ -26,6 +26,10 @@ const getSettings = async () => {
     setAllowPetClimbing(setting.allowPetClimbing ?? defaultSettings.allowPetClimbing);
     setAllowOverridePetScale(setting.allowOverridePetScale ?? defaultSettings.allowOverridePetScale);
     setPetScale(setting.petScale ?? defaultSettings.petScale);
+    setAiProvider((setting as any).aiProvider ?? (defaultSettings as any).aiProvider);
+    setDeepseekApiKey((setting as any).deepseekApiKey ?? (defaultSettings as any).deepseekApiKey);
+    setDeepseekBaseUrl((setting as any).deepseekBaseUrl ?? (defaultSettings as any).deepseekBaseUrl);
+    setDeepseekModel((setting as any).deepseekModel ?? (defaultSettings as any).deepseekModel);
 };
 
 export function useSettings() {

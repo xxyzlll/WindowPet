@@ -10,6 +10,10 @@ export interface ISettingStoreVariables {
     allowPetClimbing: boolean;
     allowOverridePetScale: boolean;
     petScale: number;
+    aiProvider: string;
+    deepseekApiKey: string;
+    deepseekBaseUrl: string;
+    deepseekModel: string;
     pets: ISpriteConfig[];
     defaultPet: ISpriteConfig[];
 }
@@ -23,6 +27,10 @@ export interface ISettingStoreState extends ISettingStoreVariables{
     setAllowPetClimbing: (newBoolean: boolean) => void;
     setAllowOverridePetScale: (newBoolean: boolean) => void;
     setPetScale: (petScale: number) => void;
+    setAiProvider: (newProvider: string) => void;
+    setDeepseekApiKey: (newKey: string) => void;
+    setDeepseekBaseUrl: (newUrl: string) => void;
+    setDeepseekModel: (newModel: string) => void;
     setPets: (newPets: ISpriteConfig[]) => void;
     setDefaultPet: (newDefaultPet: ISpriteConfig[]) => void;
 }

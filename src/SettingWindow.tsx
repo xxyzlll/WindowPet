@@ -15,6 +15,7 @@ import {
   IconSettings,
   IconBuildingStore,
   IconPaw,
+  IconRobot,
 } from '@tabler/icons-react';
 import Logo from './ui/components/Logo';
 import SettingTabs from './ui/shell/SettingTabs';
@@ -26,6 +27,7 @@ import { memo, useEffect, useMemo } from 'react';
 import MyPets from './ui/setting_tabs/MyPets';
 import PetShop from './ui/setting_tabs/PetShop';
 import Settings from './ui/setting_tabs/Settings';
+import AISettings from './ui/setting_tabs/AISettings';
 import { useSettingTabStore } from './hooks/useSettingTabStore';
 import Title from './ui/components/Title';
 import { Notifications } from '@mantine/notifications';
@@ -98,6 +100,14 @@ function SettingWindow() {
       Icon: <IconSettings size="1rem" />,
       label: t('Settings'),
       tab: ESettingTab.Settings,
+    },
+    {
+      Component: AISettings,
+      title: t("AI Settings"),
+      description: t("Configure AI provider and API keys for smart pet features"),
+      Icon: <IconRobot size="1rem" />,
+      label: t('AI'),
+      tab: ESettingTab.AISettings,
     },
     {
       Component: About,

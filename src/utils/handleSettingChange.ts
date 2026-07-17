@@ -26,6 +26,10 @@ export const handleSettingChange: IHandleSettingChange = (
         setAllowOverridePetScale,
         setPetScale,
         setAllowPetClimbing,
+        setAiProvider,
+        setDeepseekApiKey,
+        setDeepseekBaseUrl,
+        setDeepseekModel,
     } = useSettingStore.getState();
 
     info(`Change setting, type: ${dispatchType}, value: ${newValue}`);
@@ -80,6 +84,22 @@ export const handleSettingChange: IHandleSettingChange = (
             setSettings({ setKey: "petScale", newValue: newValue });
             setPetScale(newValue as number);
             emitUpdatePetsEvent({ dispatchType, newValue });
+            return;
+        case DispatchType.ChangeAiProvider:
+            setSettings({ setKey: "aiProvider", newValue: newValue });
+            setAiProvider(newValue as string);
+            return;
+        case DispatchType.ChangeDeepseekApiKey:
+            setSettings({ setKey: "deepseekApiKey", newValue: newValue });
+            setDeepseekApiKey(newValue as string);
+            return;
+        case DispatchType.ChangeDeepseekBaseUrl:
+            setSettings({ setKey: "deepseekBaseUrl", newValue: newValue });
+            setDeepseekBaseUrl(newValue as string);
+            return;
+        case DispatchType.ChangeDeepseekModel:
+            setSettings({ setKey: "deepseekModel", newValue: newValue });
+            setDeepseekModel(newValue as string);
             return;
         default:
             return;

@@ -2,6 +2,7 @@ import { convertFileSrc, invoke } from "@tauri-apps/api/tauri";
 import { ISpriteConfig, SpriteType } from "../types/ISpriteConfig";
 import { appWindow } from "@tauri-apps/api/window";
 import { error } from "tauri-plugin-log-api";
+import { useAIChatStore } from "../hooks/useAIChatStore";
 
 export class ConfigManager {
     // Config for sprite sheet that's going to be loaded
@@ -274,6 +275,10 @@ export class InputManager {
 
     public checkIsMouseInOnPet(): void {
         try {
+            if (useAIChatStore.getState().isOpen) {
+                return;
+            }
+
             invoke("get_mouse_position").then((event: any) => {
                 if (this.detectMouseOverPet(event.clientX, event.clientY)) {
                     this.turnOffIgnoreCursorEvents();

@@ -1,5 +1,6 @@
 import { ISpriteConfig } from "../types/ISpriteConfig";
 import { useSettingStore } from "../hooks/useSettingStore";
+import { useAIChatStore } from "../hooks/useAIChatStore";
 import { listen } from "@tauri-apps/api/event";
 import {
     DispatchType,
@@ -22,6 +23,8 @@ interface Pet extends Phaser.Types.Physics.Arcade.SpriteWithDynamicBody {
     canPlayRandomState: boolean;
     canRandomFlip: boolean;
     id: string;
+    clickCount: number;
+    lastClickTime: number;
 }
 
 export default class Pets extends Phaser.Scene {
@@ -30,6 +33,9 @@ export default class Pets extends Phaser.Scene {
     private frameCount: number = 0;
     // use this array to store index of pet that is currently climb and crawl
     private petClimbAndCrawlIndex: number[] = [];
+
+    private readonly TRIPLE_CLICK_DELAY: number = 500;
+    private pausedPetId: string | null = null;
 
     private configManager: ConfigManager;
     // input manager to handle mouse, toggle cursor events to ignore cursor events when mouse is over pet
@@ -311,6 +317,47 @@ export default class Pets extends Phaser.Scene {
     update(time: number, delta: number): void {
         this.frameCount += delta;
 
+        const aiChatState = useAIChatStore.getState();
+        const activePet = aiChatState.isOpen
+            ? this.pets.find(p => p.id === aiChatState.petId)
+            : null;
+
+        if (activePet) {
+            if (this.pausedPetId !== activePet.id) {
+                this.pausedPetId = activePet.id;
+            }
+            if (activePet.anims && activePet.anims.isPlaying) {
+                activePet.anims.pause();
+            }
+            if (activePet.body && activePet.body.enable) {
+                activePet.setVelocity(0, 0);
+                activePet.setAcceleration(0, 0);
+                // @ts-ignore
+                activePet.body.allowGravity = false;
+            }
+            activePet.canPlayRandomState = false;
+            activePet.canRandomFlip = false;
+
+            aiChatState.updatePetPosition(
+                activePet.x,
+                activePet.y
+            );
+        } else if (this.pausedPetId) {
+            const pet = this.pets.find(p => p.id === this.pausedPetId);
+            if (pet) {
+                if (pet.anims && !pet.anims.isPlaying) {
+                    pet.anims.resume();
+                }
+                if (pet.body) {
+                    // @ts-ignore
+                    pet.body.allowGravity = true;
+                }
+                pet.canPlayRandomState = true;
+                pet.canRandomFlip = true;
+            }
+            this.pausedPetId = null;
+        }
+
         if (this.frameCount >= this.UPDATE_DELAY) {
             this.frameCount = 0;
             if (this.allowPetInteraction) {
@@ -348,6 +395,33 @@ export default class Pets extends Phaser.Scene {
         this.pets[index].canPlayRandomState = true;
         this.pets[index].canRandomFlip = true;
         this.pets[index].id = sprite.id as string;
+        this.pets[index].clickCount = 0;
+        this.pets[index].lastClickTime = 0;
+
+        // triple click to open AI chat
+        this.pets[index].on("pointerdown", () => {
+            const now = Date.now();
+            const pet = this.pets[index];
+            if (now - pet.lastClickTime < this.TRIPLE_CLICK_DELAY) {
+                pet.clickCount++;
+            } else {
+                pet.clickCount = 1;
+            }
+            pet.lastClickTime = now;
+
+            if (pet.clickCount >= 3) {
+                pet.clickCount = 0;
+                const frameSize = this.configManager.getFrameSize(sprite);
+                useAIChatStore.getState().openChat(
+                    pet.id,
+                    sprite.name,
+                    pet.x,
+                    pet.y,
+                    frameSize.frameWidth * Math.abs(pet.scaleX),
+                    frameSize.frameHeight * Math.abs(pet.scaleY),
+                );
+            }
+        });
 
         this.petJumpOrPlayRandomState(this.pets[index]);
     }
@@ -486,6 +560,10 @@ export default class Pets extends Phaser.Scene {
         try {
             // when pet is destroyed, pet.anims will be undefined, there is a chance that this function get called because of setTimeout
             if (!pet.anims) return;
+
+            // don't switch state if this pet is the one currently chatting
+            const aiChatState = useAIChatStore.getState();
+            if (aiChatState.isOpen && aiChatState.petId === pet.id) return;
 
             // prevent pet from playing crawl and climb state if allowPetClimbing is false
             if (!this.allowPetClimbing) {

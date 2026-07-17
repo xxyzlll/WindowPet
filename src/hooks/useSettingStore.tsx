@@ -38,6 +38,22 @@ export const useSettingStore = create<ISettingStoreState>()((set) => ({
     setPetScale: (petScale) => {
         set({petScale: petScale})
     },
+    aiProvider: (defaultSettings as any).aiProvider ?? "deepseek",
+    setAiProvider: (newProvider) => {
+        set({ aiProvider: newProvider })
+    },
+    deepseekApiKey: (defaultSettings as any).deepseekApiKey ?? "",
+    setDeepseekApiKey: (newKey) => {
+        set({ deepseekApiKey: newKey })
+    },
+    deepseekBaseUrl: (defaultSettings as any).deepseekBaseUrl ?? "https://api.deepseek.com",
+    setDeepseekBaseUrl: (newUrl) => {
+        set({ deepseekBaseUrl: newUrl })
+    },
+    deepseekModel: (defaultSettings as any).deepseekModel ?? "deepseek-chat",
+    setDeepseekModel: (newModel) => {
+        set({ deepseekModel: newModel })
+    },
     // not actual settings that was saved in the config file
     // this pets will be used to track the pets in user's computer and live update the pet if user add/remove pet
     pets: [],

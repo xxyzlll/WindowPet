@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod app;
-use app::{cmd, conf, tray, utils};
+use app::{cmd, conf, tray, utils, ai};
 use log::info;
 use tauri::Manager;
 use tauri_plugin_autostart::MacosLauncher;
@@ -63,6 +63,7 @@ fn build_app() {
             cmd::get_mouse_position,
             cmd::open_folder,
             utils::reopen_main_window,
+            ai::chat_with_ai,
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application")

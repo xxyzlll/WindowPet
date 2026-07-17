@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
 import Pets from "./scenes/Pets";
 import { useSettingStore } from "./hooks/useSettingStore";
+import { useAIChatStore } from "./hooks/useAIChatStore";
 import { appWindow } from "@tauri-apps/api/window";
+import AIChatBubble from "./ui/components/AIChatBubble";
 
 function PhaserWrapper() {
     const phaserDom = useRef<HTMLDivElement>(null);
     const { pets } = useSettingStore();
+    const { isOpen, petId, petName, petX, petY, petWidth, petHeight, closeChat } = useAIChatStore();
 
     const [screenWidth, setScreenWidth] = useState(window.screen.width);
     const [screenHeight, setScreenHeight] = useState(window.screen.height);
@@ -74,6 +77,17 @@ function PhaserWrapper() {
     return (
         <>
             <div ref={phaserDom} />
+            {isOpen && (
+                <AIChatBubble
+                    petId={petId}
+                    petName={petName}
+                    petX={petX}
+                    petY={petY}
+                    petWidth={petWidth}
+                    petHeight={petHeight}
+                    onClose={closeChat}
+                />
+            )}
         </>
     )
 }

@@ -4714,6 +4714,7 @@ dependencies = [
  "log",
  "mouse_position",
  "open 5.1.3",
+ "reqwest",
  "serde",
  "serde_json",
  "tauri",

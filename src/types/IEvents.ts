@@ -15,6 +15,7 @@ export type TRenderEventListener = {
 
 export enum EventType {
     SettingWindowToPetOverlay = 'settingWindowToPetOverlay',
+    PetTripleClick = 'petTripleClick',
 }
 
 export enum DispatchType {
@@ -28,4 +29,8 @@ export enum DispatchType {
     RemovePet = 'RemovePet',
     OverridePetScale = 'Override pet scale',
     ChangePetScale = 'Change pet scale',
+    ChangeAiProvider = 'Change ai provider',
+    ChangeDeepseekApiKey = 'Change deepseek api key',
+    ChangeDeepseekBaseUrl = 'Change deepseek base url',
+    ChangeDeepseekModel = 'Change deepseek model',
 }
