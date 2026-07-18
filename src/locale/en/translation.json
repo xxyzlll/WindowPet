@@ -83,7 +83,8 @@
     "Search for pets": "Search for pets",
     "Search for my pets": "Search for my pets",
     "AI": "AI",
-    "AI Settings": "AI Settings",
+    "AI Chat": "AI Chat",
+  "AI Settings": "AI Settings",
     "Configure AI provider and API keys for smart pet features": "Configure AI provider and API keys for smart pet features",
     "AI Provider": "AI Provider",
     "Choose the AI service provider": "Choose the AI service provider",
@@ -99,5 +100,21 @@
     "Ask again": "Ask again",
     "Close": "Close",
     "Please configure your API key in the settings first.": "Please configure your API key in the settings first.",
-    "AI System Prompt": "You are {{petName}}, a cute, lively, and friendly desktop pet. Please respond in a warm, playful, and concise manner, like a cute pet would say. Keep responses short and fun, occasionally adding some cute expressions."
-}
+    "AI System Prompt": "You are {{petName}}, a cute, lively, and friendly desktop pet. Please respond in a warm, playful, and concise manner, like a cute pet would say. Keep responses short and fun, occasionally adding some cute expressions.",
+    "desktopStorage:Want to tidy up?": "Want me to tidy up your desktop?",
+    "desktopStorage:Slow tidy": "Slow Tidy",
+    "desktopStorage:Quick tidy": "Quick Tidy",
+    "desktopStorage:Quick tidy in progress...": "Quick tidying in progress...",
+    "desktopStorage:Quick tidy done": "All done! {{success}} succeeded, {{failed}} failed, {{total}} total files~",
+    "desktopStorage:Slow tidy done": "Tidy complete! {{success}} succeeded, {{failed}} failed, {{total}} total files~",
+    "desktopStorage:Tidy failed": "Tidy failed: {{error}}",
+    "desktopStorage:Nothing to tidy": "Desktop is already clean, nothing to tidy~",
+    "desktopStorage:Start slow tidy": "Okay, {{total}} files to move, let's go!",
+    "desktopStorage:Slow tidy progress": "Tidying... {{current}} / {{total}}",
+    "desktopStorage:No undo history": "No storage history to undo~",
+    "desktopStorage:Undo in progress...": "Undoing storage...",
+    "desktopStorage:Undo done": "Undo complete! {{success}} restored, {{failed}} failed, {{total}} total files~",
+    "desktopStorage:Undo failed": "Undo failed: {{error}}",
+    "desktopStorage:Tidy All": "Tidy All",
+    "desktopStorage:Undo Last": "Undo Last"
+  }

@@ -1,0 +1,46 @@
+.pet-context-menu {
+    position: fixed;
+    z-index: 2000;
+    min-width: 160px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: contextMenuFadeIn 0.15s ease-out;
+}
+
+@keyframes contextMenuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.pet-context-menu-item {
+    padding: 8px 14px;
+    font-size: 14px;
+    color: #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.pet-context-menu-item:hover {
+    background: linear-gradient(135deg, #ff9a9e20 0%, #fad0c420 100%);
+    color: #e87a7e;
+}
+
+.pet-context-menu-item.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pet-context-menu-item.disabled:hover {
+    background: transparent;
+    color: #333;
+}

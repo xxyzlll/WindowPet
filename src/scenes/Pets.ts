@@ -1,6 +1,8 @@
 import { ISpriteConfig } from "../types/ISpriteConfig";
 import { useSettingStore } from "../hooks/useSettingStore";
 import { useAIChatStore } from "../hooks/useAIChatStore";
+import { usePetBubbleStore } from "../hooks/usePetBubbleStore";
+import { useContextMenuStore } from "../hooks/useContextMenuStore";
 import { listen } from "@tauri-apps/api/event";
 import {
     DispatchType,
@@ -318,13 +320,17 @@ export default class Pets extends Phaser.Scene {
         this.frameCount += delta;
 
         const aiChatState = useAIChatStore.getState();
+        const contextMenuState = useContextMenuStore.getState();
+        
         const activePet = aiChatState.isOpen
             ? this.pets.find(p => p.id === aiChatState.petId)
-            : null;
+            : (contextMenuState.isOpen && contextMenuState.pet
+                ? this.pets.find(p => p.id === contextMenuState.pet!.petId)
+                : null);
 
         if (activePet) {
             if (this.pausedPetId !== activePet.id) {
-                this.pausedPetId = activePet.id;
+                this.pausedPetId = activePet.id;                        
             }
             if (activePet.anims && activePet.anims.isPlaying) {
                 activePet.anims.pause();
@@ -338,10 +344,12 @@ export default class Pets extends Phaser.Scene {
             activePet.canPlayRandomState = false;
             activePet.canRandomFlip = false;
 
-            aiChatState.updatePetPosition(
-                activePet.x,
-                activePet.y
-            );
+            if (aiChatState.isOpen) {
+                aiChatState.updatePetPosition(
+                    activePet.x,
+                    activePet.y
+                );
+            }
         } else if (this.pausedPetId) {
             const pet = this.pets.find(p => p.id === this.pausedPetId);
             if (pet) {
@@ -358,8 +366,31 @@ export default class Pets extends Phaser.Scene {
             this.pausedPetId = null;
         }
 
+        // update pet bubble positions via custom event (throttled)
         if (this.frameCount >= this.UPDATE_DELAY) {
             this.frameCount = 0;
+
+            const bubbleState = usePetBubbleStore.getState();
+            if (bubbleState.currentBubble) {
+                const pet = this.pets.find(p => p.id === bubbleState.currentBubble?.petId);
+                if (pet && pet.texture) {
+                    const frameSize = {
+                        width: pet.width * Math.abs(pet.scaleX),
+                        height: pet.height * Math.abs(pet.scaleY),
+                    };
+                    const event = new CustomEvent('pet-bubble-update', {
+                        detail: {
+                            petId: pet.id,
+                            petX: pet.x,
+                            petY: pet.y,
+                            petWidth: frameSize.width,
+                            petHeight: frameSize.height,
+                        }
+                    });
+                    window.dispatchEvent(event);
+                }
+            }
+
             if (this.allowPetInteraction) {
                 this.inputManager.checkIsMouseInOnPet();
             }
@@ -398,28 +429,24 @@ export default class Pets extends Phaser.Scene {
         this.pets[index].clickCount = 0;
         this.pets[index].lastClickTime = 0;
 
-        // triple click to open AI chat
-        this.pets[index].on("pointerdown", () => {
-            const now = Date.now();
-            const pet = this.pets[index];
-            if (now - pet.lastClickTime < this.TRIPLE_CLICK_DELAY) {
-                pet.clickCount++;
-            } else {
-                pet.clickCount = 1;
-            }
-            pet.lastClickTime = now;
-
-            if (pet.clickCount >= 3) {
-                pet.clickCount = 0;
+        // right click context menu
+        this.pets[index].on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+            if (pointer.button === 2) {
                 const frameSize = this.configManager.getFrameSize(sprite);
-                useAIChatStore.getState().openChat(
-                    pet.id,
-                    sprite.name,
-                    pet.x,
-                    pet.y,
-                    frameSize.frameWidth * Math.abs(pet.scaleX),
-                    frameSize.frameHeight * Math.abs(pet.scaleY),
-                );
+                const pet = this.pets[index];
+                const event = new CustomEvent('pet-right-click', {
+                    detail: {
+                        petId: pet.id,
+                        petName: sprite.name,
+                        petX: pet.x,
+                        petY: pet.y,
+                        petWidth: frameSize.frameWidth * Math.abs(pet.scaleX),
+                        petHeight: frameSize.frameHeight * Math.abs(pet.scaleY),
+                        screenX: pointer.x,
+                        screenY: pointer.y,
+                    }
+                });
+                window.dispatchEvent(event);
             }
         });
 
@@ -427,19 +454,44 @@ export default class Pets extends Phaser.Scene {
     }
 
     removePet(petId: string): void {
+        const aiChatState = useAIChatStore.getState();
+        if (aiChatState.isOpen && aiChatState.petId === petId) {
+            aiChatState.closeChat();
+        }
+        if (this.pausedPetId === petId) {
+            this.pausedPetId = null;
+        }
+
         this.pets = this.pets.filter((pet: Pet, index: number) => {
             if (pet.id === petId) {
-                pet.destroy();
+                // make pet invisible before destroy to avoid ghost image
+                pet.setVisible(false);
+                pet.setAlpha(0);
+
+                // resume pet state before destroying
+                if (pet.anims && !pet.anims.isPlaying) {
+                    pet.anims.resume();
+                }
+                if (pet.body) {
+                    pet.setVelocity(0, 0);
+                    pet.setAcceleration(0, 0);
+                    // @ts-ignore
+                    pet.body.allowGravity = true;
+                }
+                pet.canPlayRandomState = true;
+                pet.canRandomFlip = true;
+
+                const textureKey = pet.texture.key;
+                pet.destroy(true);
 
                 // get pet that use the same texture as the pet that is destroyed
                 const petsWithSameTexture = this.pets.filter(
-                    (pet: Pet) =>
-                        pet.texture.key === this.pets[index].texture.key
+                    (p: Pet) => p.texture.key === textureKey
                 );
 
                 // remove texture if there is only one pet that use the texture because we don't need it anymore
                 if (petsWithSameTexture.length === 1) {
-                    this.textures.remove(pet.texture.key);
+                    this.textures.remove(textureKey);
                 }
 
                 // remove index from petClimbAndCrawlIndex if it exist because the pet is destroyed
@@ -563,7 +615,11 @@ export default class Pets extends Phaser.Scene {
 
             // don't switch state if this pet is the one currently chatting
             const aiChatState = useAIChatStore.getState();
-            if (aiChatState.isOpen && aiChatState.petId === pet.id) return;
+            if (
+                aiChatState.isOpen &&
+                aiChatState.petId &&
+                aiChatState.petId === pet.id
+            ) return;
 
             // prevent pet from playing crawl and climb state if allowPetClimbing is false
             if (!this.allowPetClimbing) {

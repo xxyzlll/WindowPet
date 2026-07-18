@@ -3,3 +3,4 @@ pub mod tray;
 pub mod utils;
 pub mod cmd;
 pub mod ai;
+pub mod desktop_storage;

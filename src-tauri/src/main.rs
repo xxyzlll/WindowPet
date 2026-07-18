@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod app;
-use app::{cmd, conf, tray, utils, ai};
+use app::{cmd, conf, tray, utils, ai, desktop_storage};
 use log::info;
 use tauri::Manager;
 use tauri_plugin_autostart::MacosLauncher;
@@ -64,6 +64,12 @@ fn build_app() {
             cmd::open_folder,
             utils::reopen_main_window,
             ai::chat_with_ai,
+            desktop_storage::quick_tidy_desktop,
+            desktop_storage::get_pending_tidy_files,
+            desktop_storage::move_single_file_to_storage,
+            desktop_storage::save_storage_history,
+            desktop_storage::undo_last_storage,
+            desktop_storage::has_storage_history,
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
